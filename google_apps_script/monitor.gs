@@ -14,7 +14,7 @@
 // ─── Configuración ────────────────────────────────────────────────────────────
 
 const CONFIG = {
-  APP_URL: "https://MI_APP.streamlit.app",   // ← Cambia esto por tu URL
+  APP_URL: "https://exitoscraping-production.up.railway.app",   // URL del servicio FastAPI en Railway
   FREQUENCY_MINUTES: 30,                      // Frecuencia del trigger (5, 10, 15, 30, 60)
   MAX_RETRIES: 3,                             // Reintentos ante fallo
   RETRY_DELAY_MS: 5000,                       // Delay entre reintentos (ms)
