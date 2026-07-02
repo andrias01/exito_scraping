@@ -1,0 +1,17 @@
+# Archivo de configuración de Streamlit para Railway
+[server]
+port = 8501
+address = "0.0.0.0"
+headless = true
+enableCORS = false
+enableXsrfProtection = false
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+primaryColor = "#e53e3e"
+backgroundColor = "#0e1117"
+secondaryBackgroundColor = "#1a202c"
+textColor = "#fafafa"
+font = "sans serif"

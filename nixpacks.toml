@@ -1,0 +1,39 @@
+# nixpacks.toml
+# Configura el build de Railway para soportar Playwright + Chromium
+
+[phases.setup]
+nixPkgs = [
+  "chromium",
+  "nss",
+  "freetype",
+  "harfbuzz",
+  "ca-certificates",
+  "glib",
+  "nspr",
+  "atk",
+  "cups",
+  "xorg.libX11",
+  "xorg.libXcomposite",
+  "xorg.libXdamage",
+  "xorg.libXext",
+  "xorg.libXfixes",
+  "xorg.libXrandr",
+  "xorg.libXrender",
+  "xorg.libXtst",
+  "libxcb",
+  "pango",
+  "libdrm",
+  "mesa",
+  "expat",
+  "xorg.libxkbcommon",
+  "alsa-lib",
+]
+
+[phases.install]
+cmds = [
+  "pip install -r requirements.txt",
+  "playwright install chromium --with-deps",
+]
+
+[start]
+cmd = "python run_api.py"
