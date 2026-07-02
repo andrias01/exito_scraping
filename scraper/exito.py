@@ -9,6 +9,7 @@ import asyncio
 import logging
 import random
 import re
+import shutil
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
@@ -119,16 +120,25 @@ class ExitoScraper:
             return
         logger.info("Iniciando navegador Playwright (headless=%s)", self._settings.scraper_headless)
         self._playwright = await async_playwright().start()
-        self._browser = await self._playwright.chromium.launch(
-            headless=self._settings.scraper_headless,
-            slow_mo=self._settings.scraper_slow_mo,
-            args=[
+
+        # Buscar Chromium del sistema (instalado por Nix en Railway) para evitar
+        # el error "Executable doesn't exist" cuando Playwright no tiene su propio binario.
+        system_chromium = shutil.which("chromium") or shutil.which("chromium-browser") or shutil.which("google-chrome")
+        launch_kwargs: dict = {
+            "headless": self._settings.scraper_headless,
+            "slow_mo": self._settings.scraper_slow_mo,
+            "args": [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
                 "--disable-dev-shm-usage",
                 "--disable-blink-features=AutomationControlled",
             ],
-        )
+        }
+        if system_chromium:
+            logger.info("Usando Chromium del sistema: %s", system_chromium)
+            launch_kwargs["executable_path"] = system_chromium
+
+        self._browser = await self._playwright.chromium.launch(**launch_kwargs)
         self._initialized = True
         logger.info("Navegador iniciado correctamente.")
 
