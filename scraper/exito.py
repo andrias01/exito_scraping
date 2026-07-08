@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import random
 import re
 import shutil
@@ -121,9 +122,31 @@ class ExitoScraper:
         logger.info("Iniciando navegador Playwright (headless=%s)", self._settings.scraper_headless)
         self._playwright = await async_playwright().start()
 
-        # Buscar Chromium del sistema (instalado por Nix en Railway) para evitar
-        # el error "Executable doesn't exist" cuando Playwright no tiene su propio binario.
-        system_chromium = shutil.which("chromium") or shutil.which("chromium-browser") or shutil.which("google-chrome")
+        # Buscar el ejecutable de Chromium en orden de prioridad:
+        # 1. Variable de entorno explícita
+        # 2. shutil.which con varios nombres comunes
+        # 3. Rutas absolutas conocidas en Linux/Railway/Nix
+        system_chromium: str | None = (
+            os.environ.get("PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH")
+            or shutil.which("chromium")
+            or shutil.which("chromium-browser")
+            or shutil.which("google-chrome")
+            or shutil.which("google-chrome-stable")
+            or next(
+                (
+                    p for p in [
+                        "/usr/bin/chromium",
+                        "/usr/bin/chromium-browser",
+                        "/usr/bin/google-chrome",
+                        "/usr/bin/google-chrome-stable",
+                        "/snap/bin/chromium",
+                    ]
+                    if os.path.isfile(p)
+                ),
+                None,
+            )
+        )
+
         launch_kwargs: dict = {
             "headless": self._settings.scraper_headless,
             "slow_mo": self._settings.scraper_slow_mo,
@@ -137,10 +160,14 @@ class ExitoScraper:
         if system_chromium:
             logger.info("Usando Chromium del sistema: %s", system_chromium)
             launch_kwargs["executable_path"] = system_chromium
+        else:
+            logger.info("Usando Chromium propio de Playwright (PLAYWRIGHT_BROWSERS_PATH=%s)",
+                        os.environ.get("PLAYWRIGHT_BROWSERS_PATH", "no definido"))
 
         self._browser = await self._playwright.chromium.launch(**launch_kwargs)
         self._initialized = True
         logger.info("Navegador iniciado correctamente.")
+
 
     async def _stop(self) -> None:
         """Cierra el navegador y libera recursos."""
