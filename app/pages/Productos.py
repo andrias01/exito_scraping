@@ -17,6 +17,7 @@ from utils.api_client import (
     api_create_product,
     api_delete_product,
     api_get_products,
+    api_run_all,
     api_run_product,
     api_update_product,
     fmt_discount,
