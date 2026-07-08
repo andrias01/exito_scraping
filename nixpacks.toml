@@ -32,13 +32,14 @@ nixPkgs = [
 [phases.install]
 cmds = [
   "pip install -r requirements.txt",
-  "PLAYWRIGHT_BROWSERS_PATH=/ms-playwright playwright install chromium",
-  "PLAYWRIGHT_BROWSERS_PATH=/ms-playwright playwright install-deps chromium",
+  "PLAYWRIGHT_BROWSERS_PATH=/usr/lib/chromium playwright install chromium",
+  "PLAYWRIGHT_BROWSERS_PATH=/usr/lib/chromium playwright install-deps chromium",
 ]
 
-# Fijar la ruta de browsers para build Y runtime
+# Railway fuerza PLAYWRIGHT_BROWSERS_PATH=/usr/lib/chromium en runtime;
+# instalamos el browser en esa misma ruta para que coincidan.
 [variables]
-PLAYWRIGHT_BROWSERS_PATH = "/ms-playwright"
+PLAYWRIGHT_BROWSERS_PATH = "/usr/lib/chromium"
 
 [start]
 cmd = "python run_api.py"
